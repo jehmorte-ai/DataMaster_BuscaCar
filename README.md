@@ -12,7 +12,7 @@ BuscaCar - Plataforma de Análise e Comparação de Veículos
 - [Melhorias Futuras](#melhorias-futuras)
 - [Licença](#licença)
   
-Objetivo
+## Objetivo
 
 O BuscaCar é uma solução de Engenharia de Dados voltada para análise e comparação de preços de veículos, utilizando a Tabela FIPE, cruzando com dados fictícios de seguros e índices de roubo de veículos (SUSEP).
 O objetivo é fornecer insights de valor, visão de risco de roubo e previsibilidade de preços e custos associados à posse de um veículo.
@@ -50,7 +50,7 @@ Pipeline de dados robusto, escalável e observável.
    Observabilidade: monitoramento de pipelines com UpTimeRobot e logs no BigQuery.
    Segurança: controle de acesso via IAM, mascaramento de dados sensíveis com GCP DLP.
    
-#Arquitetura de solução
+## Arquitetura de solução
 
 flowchart LR
     A[Coleta de Dados] --> B[Camada Bronze]
@@ -112,7 +112,7 @@ Apos o ambiente instalado rode os codigos py
 1 - ExtracaoFipeNovoComLog.py
 2 - extracaoSusep.py
 
-#Observabilidade
+## Observabilidade
 
 Monitoramento de jobs via UpTimeRobot (verifica logs de execução no BigQuery).
 Tabela de logs (obs.run_log) contendo status, horário de início/fim e mensagens de erro.
