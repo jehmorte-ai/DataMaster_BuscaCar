@@ -152,9 +152,9 @@ flowchart LR
   IAM -. controla acesso .- BQ_GOLD
   DLP -. mascara campos sensíveis .- BQ_PRATA
 ```
-**Outros diagramas** (sequência, Gantt, classes) estão disponíveis em `documentos/`.
+Outros diagramas (sequência, Gantt, classes) estão disponíveis em `documentos/`.
 
-## Estrutura de Pastas
+##Estrutura de Pastas
 
 ├── documentos/ # Diagramas Mermaid (.mmd)
 │ ├── arquitetura_tecnica.mmd
@@ -178,7 +178,7 @@ flowchart LR
 ├── requerimentos.txt # Dependências Python
 └── LEIA-ME.md # Documentação principal
 
-#Execução do Projeto
+## Execução do Projeto
 
 Pré-requisitos
 
@@ -227,19 +227,19 @@ Conectar ao dataset gold no BigQuery.
 Atualizar as visualizações e métricas.
 *PDF do Dash e PBIX na pasta.
 
-#Observabilidade
+## Observabilidade
 
 Monitoramento de jobs via UpTimeRobot (verifica logs de execução no BigQuery).
 Tabela de logs (obs.run_log) contendo status, horário de início/fim e mensagens de erro.
 Alertas configurados para falhas na ingestão.
 
-#Segurança e Mascaramento
+## Segurança e Mascaramento
 
 IAM: acesso restrito a usuários autorizados.
 DLP: mascaramento de campos sensíveis (placa, CPF, etc.).
 Criptografia: dados criptografados em repouso e em trânsito.
 
-#Reprodutibilidade
+## Reprodutibilidade
 
 ré-requisitos:
 Python 3.10+
@@ -266,7 +266,7 @@ Criar buckets e datasets com Terraform.
 Executar scripts de ingestão.
 Publicar dashboard no Power BI.
 
-#Melhorias Futuras
+## Melhorias Futuras
 
 API pública para consulta externa.
 Integração com mais fontes (MeuCarroNaWeb).
