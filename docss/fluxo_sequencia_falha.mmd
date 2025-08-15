@@ -1,0 +1,27 @@
+sequenceDiagram
+    autonumber
+    actor Cron as Agendador
+    participant FIPE as ExtracaoFipeNovoComLog.py
+    participant LOG as obs_logging.py (obs.run_log)
+    participant UTR as UpTimeRobot
+
+    Cron->>FIPE: Dispara job FIPE
+    FIPE->>LOG: write_run_log(status=RUNNING)
+    FIPE->>FIPE: Scraping FIPE
+    alt DOM mudou / HTTP 404
+        FIPE-->>FIPE: Exceção
+        FIPE->>LOG: write_run_log(status=FAILED, error=stacktrace)
+        UTR->>LOG: Consulta último status
+        LOG-->>UTR: FAILED
+        UTR-->>Cron: Alerta crítico
+    else Intermitência
+        loop Retry exponencial (3x)
+            FIPE->>FIPE: Retentativa
+        end
+        alt Sucesso após retries
+            FIPE->>LOG: write_run_log(status=SUCCESS, retries=2)
+        else Falha final
+            FIPE->>LOG: write_run_log(status=FAILED, retries=3)
+            UTR-->>Cron: Alerta crítico
+        end
+    end

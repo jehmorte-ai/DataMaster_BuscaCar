@@ -1,0 +1,42 @@
+gantt
+    title BuscaCar — Plano por Sprints (com dependências)
+    dateFormat  YYYY-MM-DD
+    excludes    weekends
+    axisFormat  %d/%m
+
+    section Sprint 1 (Fundação)
+    Infra GCP (GCS/BQ/IAM)          :s1a, 2025-08-18, 3d
+    Repo/README/CI básico           :s1b, 2025-08-18, 2d
+    Logging base (obs.run_log)      :s1c, 2025-08-20, 2d
+    s1c after s1a
+
+    section Sprint 2 (Ingestão Bronze)
+    ExtracaoFipeNovoComLog.py       :s2a, 2025-08-21, 3d
+    extracaoSusep.py                :s2b, 2025-08-22, 3d
+    CSV Seguros                     :s2c, 2025-08-22, 2d
+    Carga Bronze (GCS->BQ)          :s2d, 2025-08-26, 2d
+    s2d after s2a,s2b,s2c
+
+    section Sprint 3 (Prata/Gold)
+    Limpeza/Padronização (Prata)    :s3a, 2025-08-28, 3d
+    Conformidade.py                 :s3c, 2025-08-29, 2d
+    Modelagem/Métricas (Gold)       :s3b, 2025-09-01, 3d
+    s3b after s3a,s3c
+
+    section Sprint 4 (Segurança & Obs)
+    IAM mínimo/segregação           :s4a, 2025-09-03, 2d
+    DLP (mascaramento)              :s4b, 2025-09-04, 3d
+    UpTimeRobot (health-check)      :s4c, 2025-09-04, 2d
+    s4b after s3b
+    s4c after s1c
+
+    section Sprint 5 (Visualização & QA)
+    Dataset Power BI                :s5a, 2025-09-08, 2d
+    Dashboard/Medidas DAX           :s5b, 2025-09-09, 3d
+    QA/Validação + testes           :s5c, 2025-09-10, 2d
+    s5b after s5a
+    s5c after s5b
+
+    section Entrega
+    Documentação Final              :s6a, 2025-09-11, 2d
+    Apresentação (milestone)        :milestone, s6m, 2025-09-12, 1d

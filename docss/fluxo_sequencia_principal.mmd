@@ -1,0 +1,35 @@
+sequenceDiagram
+    autonumber
+    actor Cron as Agendador (cron)
+    participant FIPE as ExtracaoFipeNovoComLog.py
+    participant SUSEP as extracaoSusep.py
+    participant CONF as Conformidade.py
+    participant GCS as Google Cloud Storage
+    participant BQb as BigQuery (Bronze)
+    participant BQs as BigQuery (Prata)
+    participant BQg as BigQuery (Gold)
+    participant LOG as obs_logging.py (obs.run_log)
+    participant PBI as Power BI
+
+    Cron->>FIPE: Dispara job FIPE
+    FIPE->>LOG: write_run_log(status=RUNNING)
+    FIPE->>FIPE: Coleta FIPE (scraping)
+    FIPE->>GCS: Upload arquivos brutos (Bronze)
+    FIPE->>BQb: Criar/atualizar tabelas Bronze
+    FIPE->>LOG: write_run_log(status=SUCCESS)
+
+    Cron->>SUSEP: Dispara job SUSEP
+    SUSEP->>LOG: write_run_log(status=RUNNING)
+    SUSEP->>SUSEP: Coleta SUSEP (scraping)
+    SUSEP->>GCS: Upload arquivos brutos (Bronze)
+    SUSEP->>BQb: Criar/atualizar tabelas Bronze
+    SUSEP->>LOG: write_run_log(status=SUCCESS)
+
+    BQb->>BQs: Transformações (limpeza/padronização)
+    BQs->>CONF: Ajuste de nomenclaturas FIPE x SUSEP
+    CONF->>BQs: Resultados conformes (tabelas prata)
+    CONF->>LOG: write_run_log(status=SUCCESS)
+
+    BQs->>BQg: Modelagem/Métricas (Gold)
+    PBI->>BQg: Refresh dataset
+    BQg-->>PBI: Dados atualizados

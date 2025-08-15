@@ -1,0 +1,82 @@
+classDiagram
+    %% Domínio: FIPE + Seguros + Índice de Roubo
+
+    class Marca {
+      +id: string
+      +nome: string
+      +pais_origem: string?
+    }
+
+    class Modelo {
+      +id: string
+      +id_marca: string
+      +nome: string
+      +segmento: string?  <<SUV, Hatch, Sedan...>>
+      +ano_inicio: int?
+      +ano_fim: int?
+    }
+
+    class Versao {
+      +id: string
+      +id_modelo: string
+      +nome: string       <<ex.: 1.6 Flex AT>>
+      +motorizacao: string?
+      +combustivel: string?
+      +cambio: string?
+    }
+
+    class Veiculo {
+      +id: string
+      +id_versao: string
+      +ano_modelo: int
+      +uf: string?
+      +municipio: string?
+    }
+
+    class FipePreco {
+      +id: string
+      +id_veiculo: string
+      +data_ref: date      <<YYYY-MM>>
+      +preco: numeric
+      +moeda: string = "BRL"
+      +fonte: string = "FIPE"
+    }
+
+    class SeguroOferta {
+      +id: string
+      +id_veiculo: string
+      +seguradora: string
+      +vigencia_inicio: date
+      +vigencia_fim: date
+      +premio_total: numeric
+      +franquia: numeric?
+      +coberturas: string? <<json>>
+      +classe_bônus: int?
+    }
+
+    class IndiceRoubo {
+      +id: string
+      +id_modelo: string
+      +uf: string
+      +municipio: string?
+      +data_ref: date      <<YYYY-MM>>
+      +indice: numeric     <<0..1 ou por 100 mil>>
+      +fonte: string = "SUSEP"
+    }
+
+    class Regiao {
+      +uf: string
+      +municipio: string?
+      +latitude: float?
+      +longitude: float?
+      +populacao: int?
+    }
+
+    Marca "1" -- "many" Modelo : possui >
+    Modelo "1" -- "many" Versao : possui >
+    Versao "1" -- "many" Veiculo : instancia >
+    Veiculo "1" -- "many" FipePreco : historiza >
+    Veiculo "1" -- "many" SeguroOferta : ofertas >
+    Modelo "1" -- "many" IndiceRoubo : risco por modelo >
+    Regiao "1" -- "many" IndiceRoubo : localização >
+    Regiao "1" -- "many" Veiculo : localização opcional >

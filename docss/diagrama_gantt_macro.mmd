@@ -1,0 +1,39 @@
+gantt
+    title BuscaCar — Cronograma Macro (6 semanas)
+    dateFormat  YYYY-MM-DD
+    axisFormat  %d/%m
+
+    section Preparação
+    Kickoff & Escopo                :done,    kick, 2025-08-15, 2d
+    Setup GCP (GCS/BQ/IAM)          :active,  infra,2025-08-18, 3d
+    Repositório + README            :         repo, 2025-08-18, 2d
+
+    section Ingestão (Bronze)
+    Scraper FIPE (Python)           :         fipe, 2025-08-20, 4d
+    Scraper SUSEP (Python)          :         susep,2025-08-22, 4d
+    Seguros (CSV fictício)          :         seg,  2025-08-22, 2d
+    Carga Bronze (GCS->BQ)          :         brnz, 2025-08-25, 2d
+    brnz after fipe,susep,seg
+
+    section Transformação
+    Camada Prata (limpeza/padron.)  :         prata,2025-08-27, 3d
+    Conformidade (FIPE x SUSEP)     :         conf, 2025-08-28, 2d
+    Camada Gold (métricas/modelos)  :         gold, 2025-08-29, 4d
+    gold  after prata,conf
+
+    section Observabilidade & Segurança
+    Log de Execução (BQ)            :         log,  2025-08-27, 2d
+    Health-check UpTimeRobot        :         uptime,2025-08-29, 2d
+    IAM (papéis mínimos)            :         iam,  2025-08-28, 2d
+    DLP (mascaramento)              :         dlp,  2025-09-01, 3d
+    dlp   after gold
+
+    section Visualização
+    Dataset Power BI (model)        :         pbi1, 2025-09-02, 2d
+    Dashboard (visuais + DAX)       :         pbi2, 2025-09-03, 3d
+    pbi2  after pbi1
+
+    section Qualidade & Entrega
+    Validação (QA)                  :         qa,   2025-09-05, 3d
+    Documentação final              :         docs, 2025-09-08, 2d
+    Apresentação do case            :milestone,apres,2025-09-10, 1d
