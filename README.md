@@ -152,22 +152,31 @@ flowchart LR
   IAM -. controla acesso .- BQ_GOLD
   DLP -. mascara campos sensíveis .- BQ_PRATA
 ```
-Outros diagramas (sequência, Gantt, classes) estão disponíveis na pasta documentos/.
+***Outros diagramas (sequência, Gantt, classes) estão disponíveis na pasta documentos/.
 
 #Estrutura de Pastas
 
-├── documentos/                    # Diagramas .mmd
-├── ExtracaoFipeNovoComLog.py      # Ingestão FIPE -> Bronze
-├── extracaoSusep.py               # Ingestão SUSEP -> Bronze
-├── Conformidade.py                # Ajuste de nomes FIPE x SUSEP
-├── obs_logging.py                 # Registro de execução no BQ
-├── criaFipeSilver.sql             # Bronze -> Prata (FIPE)
-├── criaSusepSilver.sql            # Bronze -> Prata (SUSEP)
-├── criaGold.sql                   # Prata -> Gold
-├── criaRunLog.sql                 # Criação da tabela de logs
-├── main.tf / variaveis.tf         # Infraestrutura GCP via Terraform
-├── requerimentos.txt              # Dependências Python
-└── LEIA-ME.md                     # Documentação principal
+├── documentos/ # Diagramas Mermaid (.mmd)
+│ ├── arquitetura_tecnica.mmd
+│ ├── fluxo_sequencia_principal.mmd
+│ ├── fluxo_sequencia_falha.mmd
+│ ├── diagrama_gantt_macro.mmd
+│ ├── diagrama_gantt_sprints.mmd
+│ ├── diagrama_classes_dominio.mmd
+│ └── diagrama_classes_pipeline.mmd
+├── ExtracaoFipeNovoComLog.py # Ingestão FIPE -> Bronze
+├── extracaoSusep.py # Ingestão SUSEP -> Bronze
+├── Conformidade.py # Ajuste de nomes FIPE x SUSEP
+├── obs_logging.py # Registro de execução no BQ
+├── criaFipeSilver.sql # Bronze -> Prata (FIPE)
+├── criaSusepSilver.sql # Bronze -> Prata (SUSEP)
+├── criaGold.sql # Prata -> Gold
+├── criaRunLog.sql # Criação da tabela de logs
+├── DesenhoDiagramaFinal.png # Diagrama técnico (Draw.io exportado)
+├── main.tf # Infraestrutura GCP via Terraform
+├── variaveis.tf # Variáveis do Terraform
+├── requerimentos.txt # Dependências Python
+└── LEIA-ME.md # Documentação principal
 
 #Execução do Projeto
 
