@@ -79,7 +79,6 @@ flowchart LR
 
 ## Diagramas do Projeto
 
-### Arquitetura Técnica
 ```mermaid
 flowchart LR
   %% Arquitetura Técnica BuscaCar
@@ -139,7 +138,7 @@ flowchart LR
   IAM -. controla acesso .- GCS
   IAM -. controla acesso .- BQ_GOLD
   DLP -. mascara campos sensíveis .- BQ_PRATA
-
+```
 
 2. Confirme com `yes` quando solicitado.
 
