@@ -152,7 +152,7 @@ flowchart LR
   IAM -. controla acesso .- BQ_GOLD
   DLP -. mascara campos sensíveis .- BQ_PRATA
 ```
-***Outros diagramas** (sequência, Gantt, classes) estão disponíveis em `documentos/`.
+**Outros diagramas** (sequência, Gantt, classes) estão disponíveis em `documentos/`.
 
 ## Estrutura de Pastas
 
