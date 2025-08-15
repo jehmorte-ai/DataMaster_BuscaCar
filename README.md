@@ -3,15 +3,16 @@ BuscaCar - Plataforma de Análise e Comparação de Veículos
 ## Sumário
 - [Objetivo](#objetivo)
 - [Arquitetura Conceitual](#arquitetura-conceitual)
-- [Arquitetura Técnica & Sequência](#arquitetura-técnica--sequência)
-- [Cronograma (Gantt)](#cronograma-gantt)
+- [Arquitetura de Solução](#Arquitetura-de-Solução)
+- [Tecnologias Utilizadas](#Tecnologias-Utilizadas)
 - [Diagramas do Projeto](#diagramas-projeto)
-- [Execução (como rodar)](#execução-como-rodar)
+- [Estrutura de Pastas](#Estrutura-de-Pastas)
+- [Execução do Projeto](#Execução-do-Projeto)
+- [Visualização no Power BI](#Visualização-no-Power-BI)
 - [Observabilidade](#observabilidade)
 - [Segurança & Mascaramento](#segurança--mascaramento)
 - [Reprodutibilidade](#reprodutibilidade)
 - [Melhorias Futuras](#melhorias-futuras)
-- [Licença](#licença)
   
 ## Objetivo
 
@@ -51,20 +52,32 @@ Pipeline de dados robusto, escalável e observável.
    Observabilidade: monitoramento de pipelines com UpTimeRobot e logs no BigQuery.
    Segurança: controle de acesso via IAM, mascaramento de dados sensíveis com GCP DLP.
    
-## Arquitetura de solução
-
+## Arquitetura de Solução
+```mermaid
 flowchart LR
-    A[Coleta de Dados] --> B[Camada Bronze]
-    B --> C[Camada Prata]
-    C --> D[Camada Gold]
-    D --> E[Power BI]
-    subgraph Infraestrutura GCP
-        B
-        C
-        D
-        F[Google Cloud Storage]
-        G[BigQuery]
+    %% Etapas principais do pipeline
+    A[Coleta de Dados<br/><i>Scraping FIPE / SUSEP<br/>CSV Seguros</i>] --> B[Camada Bronze<br/><i>Dados brutos</i>]
+    B --> C[Camada Prata<br/><i>Dados tratados e padronizados</i>]
+    C --> D[Camada Gold<br/><i>Dados prontos para análise</i>]
+    D --> E[Power BI<br/><i>Visualização e Insights</i>]
+
+    %% Infraestrutura
+    subgraph GCP["Infraestrutura GCP"]
+        F[Google Cloud Storage<br/><i>Armazena Bronze</i>]:::storage
+        G[BigQuery<br/><i>Silver, Gold, Logs</i>]:::bq
     end
+
+    %% Ligações com infraestrutura
+    A --> F
+    F --> B
+    B --> G
+    C --> G
+    D --> G
+
+    %% Estilo dos nós
+    classDef storage fill:#f9f,stroke:#333,stroke-width:1px;
+    classDef bq fill:#9ff,stroke:#333,stroke-width:1px;
+```
 
 ##Tecnologias Utilizadas
 
@@ -139,8 +152,58 @@ flowchart LR
   IAM -. controla acesso .- BQ_GOLD
   DLP -. mascara campos sensíveis .- BQ_PRATA
 ```
+Outros diagramas (sequência, Gantt, classes) estão disponíveis na pasta documentos/.
 
-2. Confirme com `yes` quando solicitado.
+#Estrutura de Pastas
+
+├── documentos/                    # Diagramas .mmd
+├── ExtracaoFipeNovoComLog.py      # Ingestão FIPE -> Bronze
+├── extracaoSusep.py               # Ingestão SUSEP -> Bronze
+├── Conformidade.py                # Ajuste de nomes FIPE x SUSEP
+├── obs_logging.py                 # Registro de execução no BQ
+├── criaFipeSilver.sql             # Bronze -> Prata (FIPE)
+├── criaSusepSilver.sql            # Bronze -> Prata (SUSEP)
+├── criaGold.sql                   # Prata -> Gold
+├── criaRunLog.sql                 # Criação da tabela de logs
+├── main.tf / variaveis.tf         # Infraestrutura GCP via Terraform
+├── requerimentos.txt              # Dependências Python
+└── LEIA-ME.md                     # Documentação principal
+
+#Execução do Projeto
+
+Pré-requisitos
+
+Terraform instalado.
+Autenticação GCP:
+
+gcloud auth application-default login
+
+Clonando Buckets GCP com Terraform
+terraform init
+terraform apply -var="project_id=meu-projeto-clone"
+
+Configuração no BigQuery
+
+Projeto: optical-victor-463515-v8
+Datasets:
+
+bronze — dados brutos FIPE/SUSEP/seguros
+silver — dados tratados (Prata)
+gold — dados prontos para BI
+obs — logs de execução (obs.run_log)
+ref — tabelas de referência
+
+gcloud auth application-default login
+gcloud config set project optical-victor-463515-v8
+
+python extracaoSusep.py
+
+bq query --use_legacy_sql=false < criaFipeSilver.sql
+bq query --use_legacy_sql=false < criaSusepSilver.sql
+bq query --use_legacy_sql=false < criaGold.sql
+bq query --use_legacy_sql=false < criaRunLog.sql
+
+python obs_logging.py --job ingest_transform
 
 ## Observações
 
@@ -149,24 +212,38 @@ flowchart LR
 
 Apos o ambiente instalado rode os codigos py
 
+#Visualização no Power BI
 
+Conectar ao dataset gold no BigQuery.
+Atualizar as visualizações e métricas.
+*PDF do Dash e PBIX na pasta.
 
-1 - ExtracaoFipeNovoComLog.py
-2 - extracaoSusep.py
-
-## Observabilidade
+#Observabilidade
 
 Monitoramento de jobs via UpTimeRobot (verifica logs de execução no BigQuery).
 Tabela de logs (obs.run_log) contendo status, horário de início/fim e mensagens de erro.
 Alertas configurados para falhas na ingestão.
 
-#Segurança
+#Segurança e Mascaramento
 
 IAM: acesso restrito a usuários autorizados.
 DLP: mascaramento de campos sensíveis (placa, CPF, etc.).
 Criptografia: dados criptografados em repouso e em trânsito.
 
 #Reprodutibilidade
+
+ré-requisitos:
+Python 3.10+
+pip install -r requerimentos.txt
+GCP SDK (gcloud) configurado
+Permissões no projeto GCP
+
+Passos:
+
+Criar datasets no BigQuery (bronze, silver, gold, obs, ref).
+Rodar scripts Python de ingestão.
+Executar transformações SQL.
+Publicar visualização no Power BI.
 
 Este repositório contém:
 Scripts de ingestão.
@@ -179,3 +256,9 @@ Configurar autenticação.
 Criar buckets e datasets com Terraform.
 Executar scripts de ingestão.
 Publicar dashboard no Power BI.
+
+#Melhorias Futuras
+
+API pública para consulta externa.
+Integração com mais fontes (MeuCarroNaWeb).
+Previsão de preços com BigQuery ML.
