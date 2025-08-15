@@ -5,6 +5,7 @@ BuscaCar - Plataforma de Análise e Comparação de Veículos
 - [Arquitetura Conceitual](#arquitetura-conceitual)
 - [Arquitetura Técnica & Sequência](#arquitetura-técnica--sequência)
 - [Cronograma (Gantt)](#cronograma-gantt)
+- [Diagramas do Projeto](#diagramas-projeto)
 - [Execução (como rodar)](#execução-como-rodar)
 - [Observabilidade](#observabilidade)
 - [Segurança & Mascaramento](#segurança--mascaramento)
@@ -76,6 +77,68 @@ flowchart LR
 | Segurança       | GCP DLP + IAM                      |
 | Observabilidade | UpTimeRobot + logs no BigQuery     |
 
+## Diagramas do Projeto
+
+### Arquitetura Técnica
+```mermaid
+flowchart LR
+    %% Arquitetura Técnica BuscaCar
+
+    subgraph Fontes["Fontes de Dados"]
+      FIPE["FIPE (web)"]
+      SUSEP["SUSEP (web)"]
+      SEGUROS["Seguros (CSV fictício)"]
+    end
+
+    subgraph ETL["ETL / Ingestão"]
+      FIPE_SCRIPT["ExtracaoFipeNovoComLog.py"]
+      SUSEP_SCRIPT["extracaoSusep.py"]
+      CONF_SCRIPT["Conformidade.py"]
+    end
+
+    subgraph GCP["GCP"]
+      GCS["Google Cloud Storage (Bronze files)"]
+      BQ_BRONZE["BigQuery (Bronze)"]
+      BQ_PRATA["BigQuery (Prata)"]
+      BQ_GOLD["BigQuery (Gold)"]
+    end
+
+    subgraph OBS["Observabilidade & Segurança"]
+      LOG["obs_logging.py -> BigQuery: obs.run_log"]
+      UPTIME["UpTimeRobot (health-check)"]
+      IAM["IAM (perfis mínimos)"]
+      DLP["GCP DLP (mascaramento)"]
+    end
+
+    subgraph BI["Consumo"]
+      PBI["Power BI (dashboards)"]
+      USER["Usuários finais"]
+    end
+
+    %% Fluxo
+    FIPE -->|scraping| FIPE_SCRIPT
+    SUSEP -->|scraping| SUSEP_SCRIPT
+    SEGUROS -->|CSV| FIPE_SCRIPT
+    SEGUROS -->|CSV| SUSEP_SCRIPT
+
+    FIPE_SCRIPT -->|upload| GCS
+    SUSEP_SCRIPT -->|upload| GCS
+    FIPE_SCRIPT -->|log| LOG
+    SUSEP_SCRIPT -->|log| LOG
+
+    GCS --> BQ_BRONZE
+    BQ_BRONZE -->|padronização/limpeza| BQ_PRATA
+    BQ_PRATA -->|conformidade nomes| CONF_SCRIPT
+    CONF_SCRIPT -->|output tratado| BQ_PRATA
+    CONF_SCRIPT -->|log| LOG
+
+    BQ_PRATA -->|marts/métricas| BQ_GOLD
+    BQ_GOLD --> PBI --> USER
+
+    UPTIME -. consulta .-> LOG
+    IAM -. controla acesso .- GCS
+    IAM -. controla acesso .- BQ_GOLD
+    DLP -. mascara campos sensíveis .- BQ_PRATA
 
 ## Execução do Projeto
 
