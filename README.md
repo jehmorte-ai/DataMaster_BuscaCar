@@ -1,18 +1,31 @@
-#BuscaCar - Plataforma de Análise e Comparação de Veículos
+BuscaCar - Plataforma de Análise e Comparação de Veículos
 
-##Objetivo
+## Sumário
+- [Objetivo](#objetivo)
+- [Arquitetura Conceitual](#arquitetura-conceitual)
+- [Arquitetura Técnica & Sequência](#arquitetura-técnica--sequência)
+- [Cronograma (Gantt)](#cronograma-gantt)
+- [Execução (como rodar)](#execução-como-rodar)
+- [Observabilidade](#observabilidade)
+- [Segurança & Mascaramento](#segurança--mascaramento)
+- [Reprodutibilidade](#reprodutibilidade)
+- [Melhorias Futuras](#melhorias-futuras)
+- [Licença](#licença)
+  
+Objetivo
 
-Este projeto tem como objetivo criar uma plataforma de engenharia de dados voltada à análise de preços de veículos com base na Tabela FIPE, cruzando essas informações com dados fictícios de seguros e indice de roubo de veiculos (coletados da Susep). A solução visa fornecer aos usuários insights de valor, uma visão de roubo do veiculo e previsibilidade de preços e custos associados à posse de um veículo.
-> **Público-alvo:** Lojistas do setor automotivo, compradores exigentes, entusiastas de carros e analistas de mercado.
+O BuscaCar é uma solução de Engenharia de Dados voltada para análise e comparação de preços de veículos, utilizando a Tabela FIPE, cruzando com dados fictícios de seguros e índices de roubo de veículos (SUSEP).
+O objetivo é fornecer insights de valor, visão de risco de roubo e previsibilidade de preços e custos associados à posse de um veículo.
+Público-alvo: lojistas do setor automotivo, compradores exigentes, entusiastas de carros e analistas de mercado.
 
-##Objetivos do Projeto
+Objetivos do Projeto
 
-- Realizar a extração automatizada dos dados da Tabela FIPE.
-- Criar uma base comparativa com valores históricos de veículos.
-- Simular análises de custos usando dados de seguros fictícios.
-- Realizar a extração automatizada dos dados da Susep.
-- Fornecer visualizações acessíveis via dashboard.
-- Estruturar um pipeline de dados robusto, escalável e observável.
+Coleta automatizada de dados da Tabela FIPE.
+Base comparativa com histórico de valores de veículos.
+Análises de custo usando dados de seguros fictícios.
+Coleta automatizada de dados da SUSEP.
+Visualizações acessíveis via dashboard.
+Pipeline de dados robusto, escalável e observável.
 
 ## Arquitetura Conceitual
 
@@ -33,18 +46,36 @@ Este projeto tem como objetivo criar uma plataforma de engenharia de dados volta
 4. **Visualização**
    - Power BI.
 
-5. **Observabilidade e Segurança**
-   - Utilizado UpTimeRobot
+5. **Observabilidade e Segurança** 
+   Observabilidade: monitoramento de pipelines com UpTimeRobot e logs no BigQuery.
+   Segurança: controle de acesso via IAM, mascaramento de dados sensíveis com GCP DLP.
+   
+#Arquitetura de solução
+
+flowchart LR
+    A[Coleta de Dados] --> B[Camada Bronze]
+    B --> C[Camada Prata]
+    C --> D[Camada Gold]
+    D --> E[Power BI]
+    subgraph Infraestrutura GCP
+        B
+        C
+        D
+        F[Google Cloud Storage]
+        G[BigQuery]
+    end
 
 ##Tecnologias Utilizadas
 
-| Componente       | Tecnologia                    |
-|------------------|-------------------------------|
-| Armazenamento    | Google Cloud Storage + BigQuery |
-| Coleta de Dados  | Web Scraping com Python (BeautifulSoup) |
-| Visualização     | Power BI  					   |
-| Segurança        | GCP DLP + Regras IAM          |
-| Observabilidade  | UpTimeRobot		           |
+| Componente      | Tecnologia                         |
+| --------------- | ---------------------------------- |
+| Armazenamento   | Google Cloud Storage + BigQuery    |
+| Coleta de Dados | Python (BeautifulSoup, Requests)   |
+| Orquestração    | Terraform (infraestrutura buckets) |
+| Visualização    | Power BI                           |
+| Segurança       | GCP DLP + IAM                      |
+| Observabilidade | UpTimeRobot + logs no BigQuery     |
+
 
 ## Execução do Projeto
 
@@ -73,3 +104,36 @@ terraform apply -var="project_id=meu-projeto-clone"
 
 - Os buckets serão criados com as mesmas configurações de nome, região e classe de armazenamento.
 - Certifique-se de que os nomes dos buckets não estejam em uso globalmente (nomes de buckets são únicos no mundo).
+
+Apos o ambiente instalado rode os codigos py
+
+
+
+1 - ExtracaoFipeNovoComLog.py
+2 - extracaoSusep.py
+
+#Observabilidade
+
+Monitoramento de jobs via UpTimeRobot (verifica logs de execução no BigQuery).
+Tabela de logs (obs.run_log) contendo status, horário de início/fim e mensagens de erro.
+Alertas configurados para falhas na ingestão.
+
+#Segurança
+
+IAM: acesso restrito a usuários autorizados.
+DLP: mascaramento de campos sensíveis (placa, CPF, etc.).
+Criptografia: dados criptografados em repouso e em trânsito.
+
+#Reprodutibilidade
+
+Este repositório contém:
+Scripts de ingestão.
+Código de transformação.
+Configurações Terraform.
+Instruções no README.
+Passos para reprodução:
+Criar projeto no GCP.
+Configurar autenticação.
+Criar buckets e datasets com Terraform.
+Executar scripts de ingestão.
+Publicar dashboard no Power BI.
